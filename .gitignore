@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Next.js
+app/.next/
+app/out/
+
+# Environment variables
+app/.env.local
+app/.env*.local
+.env.local
+.env*.local
+
+# Build output
+app/tsconfig.tsbuildinfo
+
+# OS
+.DS_Store
+
+# Claude
+.claude/
