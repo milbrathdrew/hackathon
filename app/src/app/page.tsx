@@ -38,6 +38,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [techOpen, setTechOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -334,6 +335,96 @@ export default function Home() {
                 {error}
               </p>
             )}
+
+            {/* Technical approach */}
+            <div style={{ marginTop: "2rem" }}>
+              <button
+                onClick={() => setTechOpen((o) => !o)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.4rem",
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  fontSize: "0.8rem",
+                  color: "var(--text-muted)",
+                  fontFamily: "inherit",
+                }}
+              >
+                <span
+                  style={{
+                    display: "inline-block",
+                    transition: "transform 0.15s",
+                    transform: techOpen ? "rotate(90deg)" : "rotate(0deg)",
+                    fontSize: "0.65rem",
+                  }}
+                >
+                  ▶
+                </span>
+                How it works technically
+              </button>
+
+              {techOpen && (
+                <div
+                  style={{
+                    marginTop: "0.875rem",
+                    padding: "1.25rem 1.5rem",
+                    background: "var(--surface)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: "10px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.875rem",
+                  }}
+                >
+                  {[
+                    {
+                      heading: "PDF → Claude directly",
+                      body: "The PDF is base64-encoded and passed to Claude as a native document block — no parsing library needed. The model reads structure, tables, and legal language natively.",
+                    },
+                    {
+                      heading: "One-shot structured extraction",
+                      body: "A single API call to Claude Opus extracts five fields: what's covered, exclusions, limits, claims steps, and a 600–900 word prose summary. The response is parsed as strict JSON.",
+                    },
+                    {
+                      heading: "Context-grounded Q&A",
+                      body: "The prose summary becomes the system prompt for every chat turn. No vector store, no embeddings — the full policy context is injected directly, keeping latency low and answers accurate.",
+                    },
+                    {
+                      heading: "Stateless by design",
+                      body: "No database. No auth. All state lives in React for the session. Each chat message is an independent API call; conversation history is rendered locally only.",
+                    },
+                  ].map(({ heading, body }) => (
+                    <div key={heading}>
+                      <p
+                        style={{
+                          fontFamily: "var(--font-fraunces)",
+                          fontSize: "0.825rem",
+                          fontWeight: 600,
+                          color: "var(--text)",
+                          margin: "0 0 0.25rem",
+                          letterSpacing: "-0.01em",
+                        }}
+                      >
+                        {heading}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: "0.8rem",
+                          color: "var(--text-muted)",
+                          lineHeight: 1.6,
+                          margin: 0,
+                        }}
+                      >
+                        {body}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
