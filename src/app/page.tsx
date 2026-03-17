@@ -39,6 +39,7 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const [techOpen, setTechOpen] = useState(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [trivia, setTrivia] = useState<{ question: string; answer: string } | null>(null);
   const [triviaRevealed, setTriviaRevealed] = useState(false);
   const [eli5, setEli5] = useState<string[] | null>(null);
@@ -726,65 +727,98 @@ export default function Home() {
             <div
               style={{ display: "flex", flexDirection: "column", gap: "1px" }}
             >
-              {SECTIONS.map(({ key, label }, idx) => (
-                <section
-                  key={key}
-                  className={`animate-fade-up animate-fade-up-delay-${idx + 1}`}
-                  style={{
-                    background: "var(--surface)",
-                    border: "1px solid var(--border-subtle)",
-                    borderRadius: idx === 0 ? "10px 10px 2px 2px" : idx === 3 ? "2px 2px 10px 10px" : "2px",
-                    padding: "1.25rem 1.5rem",
-                  }}
-                >
-                  <h3
+              {SECTIONS.map(({ key, label }, idx) => {
+                const isOpen = !!openSections[key];
+                return (
+                  <section
+                    key={key}
+                    className={`animate-fade-up animate-fade-up-delay-${idx + 1}`}
                     style={{
-                      fontFamily: "var(--font-fraunces)",
-                      fontSize: "0.875rem",
-                      fontWeight: 600,
-                      color: "var(--text)",
-                      letterSpacing: "-0.01em",
-                      marginBottom: "0.875rem",
+                      background: "var(--surface)",
+                      border: "1px solid var(--border-subtle)",
+                      borderRadius: idx === 0 ? "10px 10px 2px 2px" : idx === 3 ? "2px 2px 10px 10px" : "2px",
                     }}
                   >
-                    {label}
-                  </h3>
-                  <ul
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.5rem",
-                      margin: 0,
-                      padding: 0,
-                      listStyle: "none",
-                    }}
-                  >
-                    {(summary[key] ?? []).map((item, i) => (
-                      <li
-                        key={i}
+                    <button
+                      onClick={() => setOpenSections((prev) => ({ ...prev, [key]: !isOpen }))}
+                      style={{
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        background: "none",
+                        border: "none",
+                        padding: "1.25rem 1.5rem",
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        textAlign: "left",
+                      }}
+                    >
+                      <h3
                         style={{
-                          display: "flex",
-                          gap: "0.6rem",
+                          fontFamily: "var(--font-fraunces)",
                           fontSize: "0.875rem",
-                          lineHeight: 1.55,
+                          fontWeight: 600,
+                          color: "var(--text)",
+                          letterSpacing: "-0.01em",
+                          margin: 0,
                         }}
                       >
-                        <span
-                          style={{
-                            color: "var(--accent)",
-                            flexShrink: 0,
-                            marginTop: "0.32rem",
-                            fontWeight: 500,
-                          }}
-                        >
-                          –
-                        </span>
-                        <span style={{ color: "var(--text)" }}>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ))}
+                        {label}
+                      </h3>
+                      <span
+                        style={{
+                          fontSize: "0.65rem",
+                          color: "var(--text-muted)",
+                          display: "inline-block",
+                          transition: "transform 0.15s",
+                          transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
+                          flexShrink: 0,
+                          marginLeft: "0.75rem",
+                        }}
+                      >
+                        ▶
+                      </span>
+                    </button>
+                    {isOpen && (
+                      <ul
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.5rem",
+                          margin: 0,
+                          padding: "0 1.5rem 1.25rem",
+                          listStyle: "none",
+                        }}
+                      >
+                        {(summary[key] ?? []).map((item, i) => (
+                          <li
+                            key={i}
+                            style={{
+                              display: "flex",
+                              gap: "0.6rem",
+                              fontSize: "0.875rem",
+                              lineHeight: 1.55,
+                            }}
+                          >
+                            <span
+                              style={{
+                                color: "var(--accent)",
+                                flexShrink: 0,
+                                marginTop: "0.32rem",
+                                fontWeight: 500,
+                              }}
+                            >
+                              –
+                            </span>
+                            <span style={{ color: "var(--text)" }}>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+                );
+              })}
             </div>
           </div>
 

@@ -20,8 +20,8 @@ export async function POST(request: NextRequest) {
   let response;
   try {
     response = await client.messages.create({
-      model: "claude-opus-4-6",
-      max_tokens: 3072,
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 2048,
       messages: [
         {
           role: "user",
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 - "excluded": plain-English bullet list of key exclusions (array of strings, max 6 items)
 - "limits": key deductibles, limits, and dollar amounts (array of strings, max 6 items)
 - "claims": step-by-step how to file a claim (array of strings, max 5 steps)
-- "context": a comprehensive plain-English summary of the full policy (600–900 words) covering all coverage details, exclusions, conditions, limits, special provisions, and procedures — written so someone could ask follow-up questions and you could answer them accurately from this text alone
+- "context": a plain-English summary of the full policy (200–300 words) covering the key coverage details, exclusions, limits, and procedures — written so someone could ask follow-up questions and you could answer them accurately from this text alone
 
 Return only valid JSON, no markdown, no explanation.`,
             },
@@ -48,6 +48,10 @@ Return only valid JSON, no markdown, no explanation.`,
   } catch (err) {
     const message = err instanceof Error ? err.message : "Anthropic API error";
     return NextResponse.json({ error: message }, { status: 502 });
+  }
+
+  if (response.stop_reason === "max_tokens") {
+    return NextResponse.json({ error: "Response exceeded token limit — try a shorter document" }, { status: 500 });
   }
 
   const raw = response.content.find((b) => b.type === "text")?.text ?? "{}";
