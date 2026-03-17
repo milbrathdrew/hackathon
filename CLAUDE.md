@@ -1,21 +1,23 @@
-# Hackathon Project
+# Legible
 
-Next.js 16 + React 19 + TypeScript + Tailwind CSS 4 + Supabase starter template.
+Insurance policy analyzer. Upload any insurance PDF — Claude reads it and returns a plain-English summary with a Q&A chat interface.
+
+Next.js 16 + React 19 + TypeScript + Tailwind CSS 4 + Anthropic SDK.
 
 ## Project Structure
 
 ```
 hackathon/
 ├── src/
-│   ├── app/            # App Router pages and layouts
-│   ├── lib/
-│   │   └── supabase/
-│   │       ├── client.ts   # Browser-side Supabase client
-│   │       └── server.ts   # Server-side Supabase client
-│   └── middleware.ts   # Auth session refresh middleware
-├── .env.local          # Local env vars (gitignored)
-├── .env.example        # Env var template
-└── .claude/            # Claude Code settings
+│   └── app/
+│       ├── api/
+│       │   ├── analyze/route.ts   # PDF → Claude → structured summary
+│       │   └── chat/route.ts      # Context-grounded Q&A
+│       ├── globals.css
+│       ├── layout.tsx
+│       └── page.tsx               # Single-page client component
+├── .env.local                     # Local env vars (gitignored)
+└── .claude/                       # Claude Code settings
 ```
 
 ## Dev Commands
@@ -31,11 +33,10 @@ npm run lint     # Run ESLint
 
 ## Environment Variables
 
-Copy `.env.example` to `.env.local` and fill in:
+Create `.env.local` with:
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-publishable-key>
+ANTHROPIC_API_KEY=<your-api-key>
 ```
 
 ## Tech Stack
@@ -43,17 +44,15 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-publishable-key>
 - **Framework:** Next.js 16 (App Router)
 - **UI:** React 19, Tailwind CSS 4
 - **Language:** TypeScript 5
-- **Backend/Auth/DB:** Supabase (`@supabase/ssr` + `@supabase/supabase-js`)
+- **AI:** Anthropic SDK (`@anthropic-ai/sdk`)
 - **Linting:** ESLint 9
 
 ## Conventions
 
 - Use App Router (`src/app/`) — no Pages Router
 - Use `@/*` import alias for `src/`
-- Server components by default; add `"use client"` only when needed
-- Supabase server client (`src/lib/supabase/server.ts`) for Server Components and Route Handlers
-- Supabase browser client (`src/lib/supabase/client.ts`) for Client Components
-- Auth session is refreshed automatically via `middleware.ts`
+- `page.tsx` is a client component (`"use client"`) — all state lives in React for the session
+- No database, no auth, no middleware — fully stateless
 
 ## Design Context
 
