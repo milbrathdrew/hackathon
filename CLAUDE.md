@@ -6,22 +6,21 @@ Next.js 16 + React 19 + TypeScript + Tailwind CSS 4 + Supabase starter template.
 
 ```
 hackathon/
-├── app/                    # Next.js application
-│   ├── src/
-│   │   ├── app/            # App Router pages and layouts
-│   │   ├── lib/
-│   │   │   └── supabase/
-│   │   │       ├── client.ts   # Browser-side Supabase client
-│   │   │       └── server.ts   # Server-side Supabase client
-│   │   └── middleware.ts   # Auth session refresh middleware
-│   ├── .env.local          # Local env vars (gitignored)
-│   └── .env.example        # Env var template
-└── .claude/                # Claude Code settings
+├── src/
+│   ├── app/            # App Router pages and layouts
+│   ├── lib/
+│   │   └── supabase/
+│   │       ├── client.ts   # Browser-side Supabase client
+│   │       └── server.ts   # Server-side Supabase client
+│   └── middleware.ts   # Auth session refresh middleware
+├── .env.local          # Local env vars (gitignored)
+├── .env.example        # Env var template
+└── .claude/            # Claude Code settings
 ```
 
 ## Dev Commands
 
-All commands run from `app/`:
+All commands run from the project root:
 
 ```bash
 npm run dev      # Start dev server (localhost:3000)
@@ -32,7 +31,7 @@ npm run lint     # Run ESLint
 
 ## Environment Variables
 
-Copy `app/.env.example` to `app/.env.local` and fill in:
+Copy `.env.example` to `.env.local` and fill in:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
