@@ -61,7 +61,6 @@ export default function Home() {
       const data = await res.json();
       const item = data.results?.[0];
       if (!item) return;
-      // Decode HTML entities (OpenTDB encodes &amp; etc.)
       const decode = (str: string) => {
         const txt = document.createElement("textarea");
         txt.innerHTML = str;
@@ -74,34 +73,37 @@ export default function Home() {
     }
   }, []);
 
-  const analyze = useCallback(async (file: File) => {
-    if (file.type !== "application/pdf") {
-      setError("Only PDF files are supported.");
-      return;
-    }
-    setError(null);
-    setSummary(null);
-    setMessages([]);
-    setTrivia(null);
-    setTriviaRevealed(false);
-    setLoading(true);
-    setFileName(file.name);
-    fetchTrivia();
+  const analyze = useCallback(
+    async (file: File) => {
+      if (file.type !== "application/pdf") {
+        setError("Only PDF files are supported.");
+        return;
+      }
+      setError(null);
+      setSummary(null);
+      setMessages([]);
+      setTrivia(null);
+      setTriviaRevealed(false);
+      setLoading(true);
+      setFileName(file.name);
+      fetchTrivia();
 
-    const form = new FormData();
-    form.append("file", file);
+      const form = new FormData();
+      form.append("file", file);
 
-    try {
-      const res = await fetch("/api/analyze", { method: "POST", body: form });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Analysis failed");
-      setSummary(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchTrivia]);
+      try {
+        const res = await fetch("/api/analyze", { method: "POST", body: form });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? "Analysis failed");
+        setSummary(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Something went wrong");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchTrivia]
+  );
 
   const onDrop = useCallback(
     (e: React.DragEvent) => {
@@ -136,17 +138,11 @@ export default function Home() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Failed");
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: data.answer },
-        ]);
+        setMessages((prev) => [...prev, { role: "assistant", content: data.answer }]);
       } catch {
         setMessages((prev) => [
           ...prev,
-          {
-            role: "assistant",
-            content: "I couldn't answer that right now. Please try again.",
-          },
+          { role: "assistant", content: "I couldn't answer that right now. Please try again." },
         ]);
       } finally {
         setChatLoading(false);
@@ -194,13 +190,13 @@ export default function Home() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)" }}>
-      {/* ── Header ── */}
+
+      {/* ── Header — green authority bar ── */}
       <header
         style={{
-          background: "var(--surface)",
-          borderBottom: "1px solid var(--border)",
+          background: "var(--accent)",
           padding: "0 1.5rem",
-          height: "56px",
+          height: "52px",
           display: "flex",
           alignItems: "center",
         }}
@@ -215,42 +211,32 @@ export default function Home() {
             justifyContent: "space-between",
           }}
         >
-          <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem" }}>
-            <span
-              style={{
-                fontFamily: "var(--font-fraunces)",
-                fontSize: "1.1rem",
-                fontWeight: 600,
-                color: "var(--accent)",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Homeowners Policy Intelligence
-            </span>
-            <span
-              style={{
-                fontSize: "0.775rem",
-                color: "var(--text-muted)",
-                borderLeft: "1px solid var(--border)",
-                paddingLeft: "0.75rem",
-              }}
-            >
-              Insurance in plain English
-            </span>
-          </div>
+          <span
+            style={{
+              fontFamily: "var(--font-fraunces)",
+              fontSize: "1.05rem",
+              fontWeight: 600,
+              color: "var(--text-on-accent)",
+              letterSpacing: "-0.03em",
+            }}
+          >
+            Legible
+          </span>
           {summary && (
             <button
               onClick={reset}
               style={{
                 fontSize: "0.8rem",
-                color: "var(--text-muted)",
+                color: "var(--text-on-accent)",
+                opacity: 0.8,
                 background: "none",
                 border: "none",
                 cursor: "pointer",
                 padding: "0.25rem 0",
+                fontFamily: "inherit",
               }}
             >
-              ← Analyze another policy
+              ← New policy
             </button>
           )}
         </div>
@@ -263,39 +249,50 @@ export default function Home() {
             display: "flex",
             alignItems: "flex-start",
             justifyContent: "center",
-            minHeight: "calc(100vh - 56px)",
-            padding: "8vh 1.5rem 4rem",
+            minHeight: "calc(100vh - 52px)",
+            padding: "10vh 1.5rem 4rem",
           }}
         >
-          <div style={{ width: "100%", maxWidth: "440px" }}>
-            <div style={{ marginBottom: "2rem" }}>
-              <h1
-                style={{
-                  fontFamily: "var(--font-fraunces)",
-                  fontSize: "clamp(1.9rem, 5vw, 2.6rem)",
-                  fontWeight: 600,
-                  letterSpacing: "-0.035em",
-                  color: "var(--text)",
-                  lineHeight: 1.08,
-                  margin: 0,
-                }}
-              >
-                Understand your<br />policy in minutes.
-              </h1>
-              <p
-                style={{
-                  color: "var(--text-muted)",
-                  marginTop: "0.875rem",
-                  fontSize: "0.925rem",
-                  lineHeight: 1.6,
-                  maxWidth: "360px",
-                }}
-              >
-                Drop your insurance PDF. We'll break it into plain English —
-                what's covered, what's not, and how to file a claim. Then ask
-                anything.
-              </p>
-            </div>
+          <div style={{ width: "100%", maxWidth: "460px" }}>
+
+            {/* Large editorial heading */}
+            <h1
+              style={{
+                fontFamily: "var(--font-fraunces)",
+                fontSize: "clamp(2.8rem, 7vw, 4.2rem)",
+                fontWeight: 600,
+                letterSpacing: "-0.045em",
+                color: "var(--text)",
+                lineHeight: 1.0,
+                margin: "0 0 1.25rem",
+              }}
+            >
+              Your policy,<br />finally legible.
+            </h1>
+
+            {/* Accent rule — the brand mark */}
+            <div
+              style={{
+                width: "36px",
+                height: "2px",
+                background: "var(--accent)",
+                marginBottom: "1.25rem",
+              }}
+            />
+
+            <p
+              style={{
+                color: "var(--text-muted)",
+                fontSize: "0.9rem",
+                lineHeight: 1.65,
+                margin: "0 0 2.25rem",
+                maxWidth: "340px",
+              }}
+            >
+              Drop any insurance PDF — health, auto, home, renters. We&apos;ll
+              break it into plain English: what&apos;s covered, what&apos;s not,
+              and how to file a claim.
+            </p>
 
             {/* Drop zone */}
             <div
@@ -306,36 +303,55 @@ export default function Home() {
               }}
               onDragLeave={() => setDragging(false)}
               style={{
-                border: `1.5px dashed ${dragging ? "var(--accent)" : "var(--border)"}`,
+                border: `1px solid ${dragging ? "var(--accent)" : "var(--border)"}`,
                 background: dragging ? "var(--accent-subtle)" : "var(--surface)",
-                borderRadius: "10px",
+                borderRadius: "8px",
                 padding: "2.25rem 2rem",
                 textAlign: "center",
-                transition: "border-color 0.12s, background 0.12s",
+                transition: "border-color 0.15s, background 0.15s",
               }}
             >
               <div
                 style={{
                   width: "40px",
                   height: "40px",
-                  margin: "0 auto 1rem",
+                  margin: "0 auto 1.125rem",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  borderRadius: "8px",
-                  background: "var(--accent-subtle)",
-                  color: "var(--accent)",
-                  fontSize: "1.1rem",
                 }}
               >
-                ↑
+                <svg
+                  width="26"
+                  height="30"
+                  viewBox="0 0 26 30"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <rect
+                    x="0.75"
+                    y="0.75"
+                    width="24.5"
+                    height="28.5"
+                    rx="2.5"
+                    stroke="var(--accent)"
+                    strokeWidth="1.5"
+                    fill="var(--accent-subtle)"
+                  />
+                  <path
+                    d="M6 10h14M6 14.5h14M6 19h9"
+                    stroke="var(--accent)"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
               </div>
               <p
                 style={{
                   fontWeight: 500,
-                  fontSize: "0.9rem",
+                  fontSize: "0.875rem",
                   color: "var(--text)",
-                  margin: "0 0 0.3rem",
+                  margin: "0 0 0.25rem",
                 }}
               >
                 Drag your policy PDF here
@@ -344,7 +360,7 @@ export default function Home() {
                 style={{
                   fontSize: "0.8rem",
                   color: "var(--text-muted)",
-                  margin: "0 0 1.25rem",
+                  margin: "0 0 1.375rem",
                 }}
               >
                 or click to browse
@@ -355,12 +371,13 @@ export default function Home() {
                     display: "inline-block",
                     background: "var(--accent)",
                     color: "var(--text-on-accent)",
-                    borderRadius: "7px",
-                    padding: "0.475rem 1.1rem",
+                    borderRadius: "6px",
+                    padding: "0.5rem 1.25rem",
                     fontSize: "0.825rem",
                     fontWeight: 500,
                     cursor: "pointer",
                     transition: "background 0.12s",
+                    letterSpacing: "-0.01em",
                   }}
                   onMouseOver={(e) =>
                     ((e.currentTarget as HTMLElement).style.background =
@@ -384,6 +401,7 @@ export default function Home() {
 
             {error && (
               <p
+                role="alert"
                 style={{
                   marginTop: "0.75rem",
                   fontSize: "0.825rem",
@@ -398,6 +416,7 @@ export default function Home() {
             <div style={{ marginTop: "2rem" }}>
               <button
                 onClick={() => setTechOpen((o) => !o)}
+                aria-expanded={techOpen}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -406,7 +425,7 @@ export default function Home() {
                   border: "none",
                   padding: 0,
                   cursor: "pointer",
-                  fontSize: "0.8rem",
+                  fontSize: "0.775rem",
                   color: "var(--text-muted)",
                   fontFamily: "inherit",
                 }}
@@ -416,7 +435,7 @@ export default function Home() {
                     display: "inline-block",
                     transition: "transform 0.15s",
                     transform: techOpen ? "rotate(90deg)" : "rotate(0deg)",
-                    fontSize: "0.65rem",
+                    fontSize: "0.6rem",
                   }}
                 >
                   ▶
@@ -427,60 +446,60 @@ export default function Home() {
               {techOpen && (
                 <div
                   style={{
-                    marginTop: "0.875rem",
+                    marginTop: "1rem",
                     padding: "1.25rem 1.5rem",
                     background: "var(--surface)",
                     border: "1px solid var(--border-subtle)",
-                    borderRadius: "10px",
+                    borderRadius: "8px",
                     display: "flex",
                     flexDirection: "column",
-                    gap: "0.875rem",
+                    gap: "1rem",
                   }}
                 >
-                  {[
-                    {
-                      heading: "PDF → Claude directly",
-                      body: "The PDF is base64-encoded and passed to Claude as a native document block — no parsing library needed. The model reads structure, tables, and legal language natively.",
-                    },
-                    {
-                      heading: "One-shot structured extraction",
-                      body: "A single API call to Claude Opus extracts five fields: what's covered, exclusions, limits, claims steps, and a 600–900 word prose summary. The response is parsed as strict JSON.",
-                    },
-                    {
-                      heading: "Context-grounded Q&A",
-                      body: "The prose summary becomes the system prompt for every chat turn. No vector store, no embeddings — the full policy context is injected directly, keeping latency low and answers accurate.",
-                    },
-                    {
-                      heading: "Stateless by design",
-                      body: "No database. No auth. All state lives in React for the session. Each chat message is an independent API call; conversation history is rendered locally only.",
-                    },
-                  ].map(({ heading, body }) => (
-                    <div key={heading}>
-                      <p
-                        style={{
-                          fontFamily: "var(--font-fraunces)",
-                          fontSize: "0.825rem",
-                          fontWeight: 600,
-                          color: "var(--text)",
-                          margin: "0 0 0.25rem",
-                          letterSpacing: "-0.01em",
-                        }}
-                      >
-                        {heading}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: "0.8rem",
-                          color: "var(--text-muted)",
-                          lineHeight: 1.6,
-                          margin: 0,
-                        }}
-                      >
-                        {body}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                    {[
+                      {
+                        heading: "PDF → Claude directly",
+                        body: "The PDF is base64-encoded and passed to Claude as a native document block — no parsing library needed. The model reads structure, tables, and legal language natively.",
+                      },
+                      {
+                        heading: "One-shot structured extraction",
+                        body: "A single API call to Claude Opus extracts five fields: what's covered, exclusions, limits, claims steps, and a 600–900 word prose summary. The response is parsed as strict JSON.",
+                      },
+                      {
+                        heading: "Context-grounded Q&A",
+                        body: "The prose summary becomes the system prompt for every chat turn. No vector store, no embeddings — the full policy context is injected directly, keeping latency low and answers accurate.",
+                      },
+                      {
+                        heading: "Stateless by design",
+                        body: "No database. No auth. All state lives in React for the session. Each chat message is an independent API call; conversation history is rendered locally only.",
+                      },
+                    ].map(({ heading, body }) => (
+                      <div key={heading}>
+                        <p
+                          style={{
+                            fontFamily: "var(--font-fraunces)",
+                            fontSize: "0.8rem",
+                            fontWeight: 600,
+                            color: "var(--text)",
+                            margin: "0 0 0.2rem",
+                            letterSpacing: "-0.015em",
+                          }}
+                        >
+                          {heading}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: "0.775rem",
+                            color: "var(--text-muted)",
+                            lineHeight: 1.6,
+                            margin: 0,
+                          }}
+                        >
+                          {body}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
               )}
             </div>
           </div>
@@ -494,22 +513,24 @@ export default function Home() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            minHeight: "calc(100vh - 56px)",
+            minHeight: "calc(100vh - 52px)",
           }}
         >
           <div style={{ textAlign: "center" }}>
             <div
               style={{
-                width: "28px",
-                height: "28px",
-                border: "2px solid var(--border)",
+                width: "24px",
+                height: "24px",
+                border: "1.5px solid var(--border)",
                 borderTopColor: "var(--accent)",
                 borderRadius: "50%",
                 animation: "spin 0.65s linear infinite",
-                margin: "0 auto 1.125rem",
+                margin: "0 auto 1.25rem",
               }}
             />
-            <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>
+            <p
+              style={{ fontSize: "0.875rem", color: "var(--text-muted)", margin: 0 }}
+            >
               Reading{" "}
               <span style={{ color: "var(--text)", fontWeight: 500 }}>
                 {fileName}
@@ -520,20 +541,21 @@ export default function Home() {
             {trivia && (
               <div
                 style={{
-                  marginTop: "2rem",
-                  maxWidth: "340px",
+                  marginTop: "2.25rem",
+                  maxWidth: "320px",
                   textAlign: "left",
                   background: "var(--surface)",
                   border: "1px solid var(--border-subtle)",
-                  borderRadius: "10px",
+                  borderRadius: "8px",
                   padding: "1.125rem 1.25rem",
                 }}
               >
                 <p
                   style={{
-                    fontSize: "0.7rem",
+                    fontSize: "0.675rem",
                     textTransform: "uppercase",
-                    letterSpacing: "0.07em",
+                    letterSpacing: "0.08em",
+                    fontWeight: 500,
                     color: "var(--text-muted)",
                     marginBottom: "0.5rem",
                   }}
@@ -542,7 +564,7 @@ export default function Home() {
                 </p>
                 <p
                   style={{
-                    fontSize: "0.875rem",
+                    fontSize: "0.85rem",
                     color: "var(--text)",
                     lineHeight: 1.55,
                     marginBottom: "0.75rem",
@@ -568,9 +590,9 @@ export default function Home() {
                       style={{
                         background: "none",
                         border: "1px solid var(--border)",
-                        borderRadius: "6px",
-                        padding: "0.35rem 0.75rem",
-                        fontSize: "0.775rem",
+                        borderRadius: "5px",
+                        padding: "0.3rem 0.7rem",
+                        fontSize: "0.75rem",
                         color: "var(--text-muted)",
                         cursor: "pointer",
                         fontFamily: "inherit",
@@ -585,9 +607,9 @@ export default function Home() {
                       style={{
                         background: "none",
                         border: "1px solid var(--border)",
-                        borderRadius: "6px",
-                        padding: "0.35rem 0.75rem",
-                        fontSize: "0.775rem",
+                        borderRadius: "5px",
+                        padding: "0.3rem 0.7rem",
+                        fontSize: "0.75rem",
                         color: "var(--text-muted)",
                         cursor: "pointer",
                         fontFamily: "inherit",
@@ -610,19 +632,27 @@ export default function Home() {
           style={{
             maxWidth: "1280px",
             margin: "0 auto",
-            padding: "1.75rem 1.5rem 3rem",
+            padding: "2rem 1.5rem 4rem",
           }}
         >
           {/* Left — Summary */}
           <div>
-            <div style={{ marginBottom: "1.5rem" }}>
+            {/* File header */}
+            <div
+              style={{
+                marginBottom: "1.75rem",
+                paddingBottom: "1.5rem",
+                borderBottom: "1px solid var(--border)",
+              }}
+            >
               <p
                 style={{
-                  fontSize: "0.75rem",
+                  fontSize: "0.7rem",
                   color: "var(--text-muted)",
                   textTransform: "uppercase",
-                  letterSpacing: "0.07em",
-                  marginBottom: "0.25rem",
+                  letterSpacing: "0.08em",
+                  fontWeight: 500,
+                  marginBottom: "0.3rem",
                 }}
               >
                 Analysis complete
@@ -630,7 +660,7 @@ export default function Home() {
               <h2
                 style={{
                   fontFamily: "var(--font-fraunces)",
-                  fontSize: "1.25rem",
+                  fontSize: "1.2rem",
                   fontWeight: 600,
                   color: "var(--text)",
                   letterSpacing: "-0.025em",
@@ -641,63 +671,72 @@ export default function Home() {
               </h2>
             </div>
 
-            {/* ELI5 */}
+            {/* ELI5 — text link, not a button card */}
             {!eli5 && !eli5Loading && (
               <button
                 onClick={explainLikeFive}
                 style={{
-                  marginBottom: "1.25rem",
+                  marginBottom: "1.5rem",
                   background: "none",
-                  border: "1px solid var(--border)",
-                  borderRadius: "8px",
-                  padding: "0.55rem 1rem",
-                  fontSize: "0.825rem",
-                  fontWeight: 500,
-                  color: "var(--text)",
+                  border: "none",
+                  padding: 0,
                   cursor: "pointer",
                   fontFamily: "inherit",
+                  fontSize: "0.825rem",
+                  color: "var(--accent)",
+                  fontWeight: 500,
+                  letterSpacing: "-0.01em",
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "0.4rem",
-                  transition: "border-color 0.12s",
+                  gap: "0.3rem",
                 }}
-                onMouseOver={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "var(--accent)")}
-                onMouseOut={(e) => ((e.currentTarget as HTMLElement).style.borderColor = "var(--border)")}
               >
-                Explain like I&apos;m five
+                Explain like I&apos;m five →
               </button>
             )}
 
             {eli5Loading && (
-              <p style={{ fontSize: "0.825rem", color: "var(--text-muted)", marginBottom: "1.25rem" }}>
+              <p
+                style={{
+                  fontSize: "0.8rem",
+                  color: "var(--text-muted)",
+                  marginBottom: "1.5rem",
+                }}
+              >
                 Simplifying…
               </p>
             )}
 
+            {/* ELI5 result — left-border annotation block */}
             {eli5 && (
               <div
                 className="animate-fade-up"
                 style={{
-                  marginBottom: "1.25rem",
-                  background: "var(--surface)",
-                  border: "1px solid var(--border-subtle)",
-                  borderRadius: "10px",
-                  padding: "1.25rem 1.5rem",
+                  marginBottom: "1.75rem",
+                  paddingLeft: "1rem",
+                  borderLeft: "2px solid var(--accent)",
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.75rem" }}>
-                  <h3
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "baseline",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  <p
                     style={{
                       fontFamily: "var(--font-fraunces)",
-                      fontSize: "0.875rem",
+                      fontSize: "0.825rem",
                       fontWeight: 600,
                       color: "var(--text)",
-                      letterSpacing: "-0.01em",
+                      letterSpacing: "-0.015em",
                       margin: 0,
                     }}
                   >
                     In plain English
-                  </h3>
+                  </p>
                   <button
                     onClick={() => setEli5(null)}
                     style={{
@@ -713,10 +752,37 @@ export default function Home() {
                     Dismiss
                   </button>
                 </div>
-                <ul style={{ display: "flex", flexDirection: "column", gap: "0.5rem", margin: 0, padding: 0, listStyle: "none" }}>
-                  {eli5!.map((item, i) => (
-                    <li key={i} style={{ display: "flex", gap: "0.6rem", fontSize: "0.875rem", lineHeight: 1.55 }}>
-                      <span style={{ color: "var(--accent)", flexShrink: 0, marginTop: "0.32rem", fontWeight: 500 }}>–</span>
+                <ul
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.45rem",
+                    margin: 0,
+                    padding: 0,
+                    listStyle: "none",
+                  }}
+                >
+                  {eli5.map((item, i) => (
+                    <li
+                      key={i}
+                      style={{
+                        display: "flex",
+                        gap: "0.65rem",
+                        fontSize: "0.875rem",
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: "var(--accent)",
+                          flexShrink: 0,
+                          marginTop: "0.3rem",
+                          fontWeight: 500,
+                          fontSize: "0.8rem",
+                        }}
+                      >
+                        –
+                      </span>
                       <span style={{ color: "var(--text)" }}>{item}</span>
                     </li>
                   ))}
@@ -724,70 +790,84 @@ export default function Home() {
               </div>
             )}
 
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "1px" }}
-            >
+            {/* Numbered sections — ruled document layout */}
+            <div style={{ borderTop: "1px solid var(--border)" }}>
               {SECTIONS.map(({ key, label }, idx) => {
                 const isOpen = !!openSections[key];
+                const num = String(idx + 1).padStart(2, "0");
                 return (
                   <section
                     key={key}
                     className={`animate-fade-up animate-fade-up-delay-${idx + 1}`}
-                    style={{
-                      background: "var(--surface)",
-                      border: "1px solid var(--border-subtle)",
-                      borderRadius: idx === 0 ? "10px 10px 2px 2px" : idx === 3 ? "2px 2px 10px 10px" : "2px",
-                    }}
+                    style={{ borderBottom: "1px solid var(--border-subtle)" }}
                   >
                     <button
-                      onClick={() => setOpenSections((prev) => ({ ...prev, [key]: !isOpen }))}
+                      onClick={() =>
+                        setOpenSections((prev) => ({ ...prev, [key]: !isOpen }))
+                      }
+                      aria-expanded={isOpen}
                       style={{
                         width: "100%",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "space-between",
+                        gap: "1rem",
                         background: "none",
                         border: "none",
-                        padding: "1.25rem 1.5rem",
+                        padding: "1.125rem 0",
                         cursor: "pointer",
                         fontFamily: "inherit",
                         textAlign: "left",
                       }}
                     >
+                      <span
+                        style={{
+                          fontSize: "0.65rem",
+                          fontWeight: 500,
+                          color: "var(--text-muted)",
+                          letterSpacing: "0.04em",
+                          flexShrink: 0,
+                          minWidth: "1.5rem",
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
+                        {num}
+                      </span>
                       <h3
                         style={{
                           fontFamily: "var(--font-fraunces)",
-                          fontSize: "0.875rem",
+                          fontSize: "0.925rem",
                           fontWeight: 600,
                           color: "var(--text)",
-                          letterSpacing: "-0.01em",
+                          letterSpacing: "-0.015em",
                           margin: 0,
+                          flex: 1,
                         }}
                       >
                         {label}
                       </h3>
                       <span
                         style={{
-                          fontSize: "0.65rem",
+                          fontSize: "0.6rem",
                           color: "var(--text-muted)",
                           display: "inline-block",
-                          transition: "transform 0.15s",
+                          transition: "transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)",
                           transform: isOpen ? "rotate(90deg)" : "rotate(0deg)",
                           flexShrink: 0,
-                          marginLeft: "0.75rem",
                         }}
                       >
                         ▶
                       </span>
                     </button>
+
                     {isOpen && (
                       <ul
+                        className="animate-fade-up"
                         style={{
                           display: "flex",
                           flexDirection: "column",
                           gap: "0.5rem",
-                          margin: 0,
-                          padding: "0 1.5rem 1.25rem",
+                          margin: "0 0 1.25rem 2.5rem",
+                          padding: 0,
                           listStyle: "none",
                         }}
                       >
@@ -796,17 +876,18 @@ export default function Home() {
                             key={i}
                             style={{
                               display: "flex",
-                              gap: "0.6rem",
+                              gap: "0.65rem",
                               fontSize: "0.875rem",
-                              lineHeight: 1.55,
+                              lineHeight: 1.6,
                             }}
                           >
                             <span
                               style={{
                                 color: "var(--accent)",
                                 flexShrink: 0,
-                                marginTop: "0.32rem",
+                                marginTop: "0.3rem",
                                 fontWeight: 500,
+                                fontSize: "0.8rem",
                               }}
                             >
                               –
@@ -824,20 +905,21 @@ export default function Home() {
 
           {/* Right — Chat */}
           <div className="chat-panel animate-fade-up">
-            {/* Chat header */}
             <div
               style={{
-                padding: "1rem 1.25rem",
+                padding: "1rem 1.25rem 0.875rem",
                 borderBottom: "1px solid var(--border-subtle)",
                 flexShrink: 0,
               }}
             >
               <p
                 style={{
+                  fontFamily: "var(--font-fraunces)",
                   fontWeight: 600,
                   fontSize: "0.875rem",
+                  letterSpacing: "-0.015em",
                   color: "var(--text)",
-                  margin: "0 0 0.125rem",
+                  margin: "0 0 0.2rem",
                 }}
               >
                 Ask about your policy
@@ -847,14 +929,17 @@ export default function Home() {
                   fontSize: "0.75rem",
                   color: "var(--text-muted)",
                   margin: 0,
+                  lineHeight: 1.5,
                 }}
               >
-                I've read the full document and can answer specifics.
+                I&apos;ve read the full document.
               </p>
             </div>
 
             {/* Messages */}
             <div
+              aria-live="polite"
+              aria-label="Conversation"
               style={{
                 flex: 1,
                 overflowY: "auto",
@@ -868,19 +953,18 @@ export default function Home() {
                 <div>
                   <p
                     style={{
-                      fontSize: "0.75rem",
+                      fontSize: "0.7rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                      fontWeight: 500,
                       color: "var(--text-muted)",
                       marginBottom: "0.625rem",
                     }}
                   >
-                    Try asking:
+                    Try asking
                   </p>
                   <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "0.4rem",
-                    }}
+                    style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}
                   >
                     {SUGGESTED.map((q) => (
                       <button
@@ -891,12 +975,13 @@ export default function Home() {
                           background: "var(--bg)",
                           border: "1px solid var(--border-subtle)",
                           borderRadius: "7px",
-                          padding: "0.575rem 0.875rem",
+                          padding: "0.55rem 0.875rem",
                           fontSize: "0.8rem",
                           color: "var(--text)",
                           cursor: "pointer",
                           transition: "border-color 0.12s",
-                          lineHeight: 1.4,
+                          lineHeight: 1.45,
+                          fontFamily: "inherit",
                         }}
                         onMouseOver={(e) =>
                           ((e.currentTarget as HTMLElement).style.borderColor =
@@ -919,17 +1004,14 @@ export default function Home() {
                   key={i}
                   style={{
                     display: "flex",
-                    justifyContent:
-                      msg.role === "user" ? "flex-end" : "flex-start",
+                    justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
                   }}
                 >
                   <div
                     style={{
-                      maxWidth: "86%",
+                      maxWidth: "88%",
                       background:
-                        msg.role === "user"
-                          ? "var(--accent)"
-                          : "var(--bg)",
+                        msg.role === "user" ? "var(--accent)" : "var(--bg)",
                       color:
                         msg.role === "user"
                           ? "var(--text-on-accent)"
@@ -1004,8 +1086,10 @@ export default function Home() {
                   ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask a question about your policy…"
+                  placeholder="Ask about your policy…"
                   disabled={chatLoading}
+                  className="chat-input"
+                  aria-label="Your question"
                   style={{
                     flex: 1,
                     background: "var(--bg)",
@@ -1017,13 +1101,10 @@ export default function Home() {
                     outline: "none",
                     transition: "border-color 0.12s",
                     minWidth: 0,
+                    fontFamily: "inherit",
                   }}
-                  onFocus={(e) =>
-                    (e.target.style.borderColor = "var(--accent)")
-                  }
-                  onBlur={(e) =>
-                    (e.target.style.borderColor = "var(--border)")
-                  }
+                  onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+                  onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
                 />
                 <button
                   type="submit"
@@ -1036,14 +1117,15 @@ export default function Home() {
                     padding: "0.5rem 0.875rem",
                     fontSize: "0.8rem",
                     fontWeight: 500,
-                    cursor:
-                      input.trim() && !chatLoading ? "pointer" : "not-allowed",
+                    cursor: input.trim() && !chatLoading ? "pointer" : "not-allowed",
                     opacity: input.trim() && !chatLoading ? 1 : 0.45,
                     transition: "opacity 0.12s",
                     flexShrink: 0,
+                    fontFamily: "inherit",
+                    letterSpacing: "-0.01em",
                   }}
                 >
-                  Ask
+                  Send
                 </button>
               </form>
             </div>

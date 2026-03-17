@@ -58,7 +58,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-publishable-key>
 ## Design Context
 
 ### Users
-General consumers — everyday people holding an insurance policy (health, auto, home) who need help cutting through the legal language. Often mildly anxious, not financially sophisticated. They want plain answers fast, no condescension.
+General consumers — everyday people holding any type of insurance policy (health, auto, home, renters, life, etc.) who need help cutting through the legal language. The analyzer handles any insurance PDF — Claude infers the policy type from the document. Often mildly anxious, not financially sophisticated. They want plain answers fast, no condescension.
 
 ### Brand Personality
 Trustworthy. Precise. Calm. Feels like a knowledgeable friend who read the whole document so you don't have to.
@@ -74,6 +74,7 @@ Anti-references: No cyan-on-dark AI aesthetic. No colored emoji cards. No glassm
 3. **Document-native** — appropriate for reading text, not filing support tickets
 4. **Responsive without amputating** — chat stacks below on mobile, all functionality stays
 5. **Purposeful motion** — one smooth entrance on results reveal; nothing decorative
+6. **Accessible by default** — WCAG 2.1 AA: sufficient contrast, full keyboard nav, meaningful focus indicators, screen-reader-compatible markup
 
 ## Skills Available
 

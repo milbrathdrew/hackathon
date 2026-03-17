@@ -17,8 +17,8 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Homeowners Policy Intelligence",
-  description: "Understand your insurance policy in plain English",
+  title: "Legible — Your policy in plain English",
+  description: "Upload any insurance policy PDF and get a plain-English breakdown of what's covered, what's not, and how to file a claim.",
 };
 
 export default function RootLayout({
